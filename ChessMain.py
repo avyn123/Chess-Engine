@@ -25,21 +25,23 @@ def main():
     validMoves = gs.getValidMoves()
     moveMade = False
     animate = False
-    game_over = False
-    move_log_font = p.font.SysFont("Arial", 14, False, False)
+    # move_log_font = p.font.SysFont("Arial", 14, False, False)
     loadImages()
     running = True
     sqSelected = ()
     playerClicks = []
+    game_over = False
+    playerOne = False
+    playerTwo = True
 
     while running:
-        # humanTurn = True
+        humanTurn = (gs.white_to_move and playerOne) or (not gs.white_to_move and playerTwo)
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
             #mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not game_over:
+                if not game_over and humanTurn:
                     location = p.mouse.get_pos()
                     col = location[0]//SQ_SIZE
                     row = location[1]//SQ_SIZE
@@ -76,12 +78,19 @@ def main():
                     moveMade = False
                     animate = False
                     game_over = False
+
+        if not game_over and not humanTurn:
+            AIMove = SmartMoveFinder.findRandomMove(gs.getValidMoves())
+            gs.makeMove(AIMove)
+            moveMade = True
+            animate = True
         
         if moveMade:
             if animate:
                 animateMove(gs.move_log[-1], screen, gs.board, clock)
             validMoves = gs.getValidMoves()
             moveMade = False
+            animate = False
                 
         drawGameState(screen, gs, validMoves, sqSelected)    
         

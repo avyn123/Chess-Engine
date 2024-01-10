@@ -1,4 +1,5 @@
-# Assigning points to pieces 
+import random
+
 pieceScore = {'K': 0, 'Q': 10, 'R': 5, 'N': 3, 'B': 2, 'p': 1}
 CHECKMATE = 1000
 STALEMATE = 0
@@ -43,3 +44,6 @@ def getBestMove(gs, validMoves):
         gs.undoMove()
 
     return bestMove
+
+def findRandomMove(validMoves):
+    return random.choice(validMoves)
