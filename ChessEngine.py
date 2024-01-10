@@ -22,6 +22,17 @@ class GameState:
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
+        # self.board = [
+        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
+        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
+        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
+        #     ["--", "--", "--", "bQ", "wK", "wN", "--", "--"],
+        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
+        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
+        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
+        #     ["--", "--", "--", "--", "bK", "--", "--", "--"],
+        # ]
+        
         self.moveFunctions = {"p": self.getPawnMoves, "R": self.getRookMoves, "N": self.getKnightMoves,
                               "B": self.getBishopMoves, "Q": self.getQueenMoves, "K": self.getKingMoves}
         self.white_to_move = True
@@ -161,6 +172,32 @@ class GameState:
                 elif move.start_col == 7:  # right rook
                     self.current_castling_rights.bks = False
 
+    def insufficientMaterial(self, board):
+        white_pieces = {piece for row in board for piece in row if piece[0] == 'w'}
+        black_pieces = {piece for row in board for piece in row if piece[0] == 'b'}
+
+        # Check for king versus king
+        if white_pieces == {'wK'} and black_pieces == {'bK'}:
+            return True
+
+        # Check for king and bishop versus king
+        if white_pieces == {'wK', 'wB'} and black_pieces == {'bK'}:
+            return True
+        if black_pieces == {'bK', 'bB'} and white_pieces == {'wK'}:
+            return True
+
+        # Check for king and knight versus king
+        if white_pieces == {'wK', 'wN'} and black_pieces == {'bK'}:
+            return True
+        if black_pieces == {'bK', 'bN'} and white_pieces == {'wK'}:
+            return True
+
+        # Check for kings and opposite colored bishops
+        if white_pieces == {'wK', 'wB'} and black_pieces == {'bK', 'bB'}:
+            return True
+
+        return False
+
     def getValidMoves(self):
         """
         All moves considering checks.
@@ -169,6 +206,7 @@ class GameState:
                                           self.current_castling_rights.wqs, self.current_castling_rights.bqs)
         # advanced algorithm
         moves = []
+        
         self.in_check, self.pins, self.checks = self.checkForPinsAndChecks()
 
         if self.white_to_move:
@@ -221,6 +259,10 @@ class GameState:
         else:
             self.checkmate = False
             self.stalemate = False
+            
+        if self.insufficientMaterial(self.board):
+            self.checkmate = False
+            self.stalemate = True
 
         self.current_castling_rights = temp_castle_rights
         return moves

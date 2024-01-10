@@ -37,7 +37,7 @@ def getBestMove(gs, validMoves):
 
         # Updating score and move if a better move is found
         # which improves the score for white/black 
-        if score > maxScore:
+        if score >= maxScore:
             score = maxScore
             bestMove = playerMove
         
