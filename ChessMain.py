@@ -1,4 +1,5 @@
 from ChessEngine import GameState, Move
+import SmartMoveFinder
 import pygame as p 
 
 WIDTH = HEIGHT = 512
@@ -27,6 +28,7 @@ def main():
     playerClicks = []
 
     while running:
+        humanTurn = True
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
@@ -49,16 +51,24 @@ def main():
                             moveMade = True
                             sqSelected = ()  # reset user clicks
                             playerClicks = []
+                            humanTurn = False
                     if not moveMade:
                         playerClicks = [sqSelected]
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:
                     gs.undoMove()
                     moveMade = True
+                    humanTurn = False
         
         if moveMade:
             validMoves = gs.getValidMoves()
             moveMade = False
+
+        if not humanTurn:
+            ai_move = SmartMoveFinder.getBestMove(gs, gs.getValidMoves())
+            if ai_move:
+                gs.makeMove(ai_move)
+                humanTurn = True
                 
         drawGameState(screen, gs)        
         clock.tick(MAX_FPS)
