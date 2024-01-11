@@ -21,29 +21,30 @@ def getBestMove(gs, validMoves):
     # white aims to drive the score closer to 1000 
     # black aims to drive the score closer to -1000
     turnMultiplier = 1 if gs.white_to_move else -1
-    maxScore = -CHECKMATE
-    bestMove = None
+    opponentMinMaxScore = CHECKMATE
+    bestPlayerMove = None
+    random.shuffle(validMoves)
     for playerMove in validMoves:
         gs.makeMove(playerMove)
-
-        # Evaluating the score of the board based on its state 
-        # i.e. checkmate/stalemate
-        if gs.checkmate:
-            score = CHECKMATE
-        elif gs.stalemate:
-            score = STALEMATE
-        else:
-            score = turnMultiplier * scoreMaterial(gs.board)
-
-        # Updating score and move if a better move is found
-        # which improves the score for white/black 
-        if score >= maxScore:
-            score = maxScore
-            bestMove = playerMove
-        
+        opponentMoves = gs.getValidMoves()
+        opponentMaxScore = -CHECKMATE
+        for opponentMove in opponentMoves:
+            gs.makeMove(opponentMove)
+            if gs.checkmate:
+                score = -turnMultiplier*CHECKMATE
+            elif gs.stalemate:
+                score = STALEMATE
+            else:
+                score = -turnMultiplier * scoreMaterial(gs.board)
+            if score > opponentMaxScore:
+                opponentMaxScore = score
+            gs.undoMove()
+        if opponentMaxScore < opponentMinMaxScore:
+            opponentMinMaxScore = opponentMaxScore
+            bestPlayerMove = playerMove
         gs.undoMove()
 
-    return bestMove
+    return bestPlayerMove
 
 def findRandomMove(validMoves):
     return random.choice(validMoves)

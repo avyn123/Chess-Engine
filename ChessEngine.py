@@ -32,6 +32,7 @@ class GameState:
         #     ["--", "--", "--", "--", "--", "--", "--", "--"],
         #     ["--", "--", "--", "--", "bK", "--", "--", "--"],
         # ]
+        # Uncomment this to test for stalemate conditions
         
         self.moveFunctions = {"p": self.getPawnMoves, "R": self.getRookMoves, "N": self.getKnightMoves,
                               "B": self.getBishopMoves, "Q": self.getQueenMoves, "K": self.getKingMoves}
@@ -51,10 +52,6 @@ class GameState:
                                                self.current_castling_rights.wqs, self.current_castling_rights.bqs)]
 
     def makeMove(self, move):
-        """
-        Takes a Move as a parameter and executes it.
-        (this will not work for castling, pawn promotion and en-passant)
-        """
         self.board[move.start_row][move.start_col] = "--"
         self.board[move.end_row][move.end_col] = move.piece_moved
         self.move_log.append(move)  # log the move so we can undo it later
@@ -100,6 +97,7 @@ class GameState:
         self.updateCastleRights(move)
         self.castle_rights_log.append(CastleRights(self.current_castling_rights.wks, self.current_castling_rights.bks,
                                                    self.current_castling_rights.wqs, self.current_castling_rights.bqs))
+        
 
     def undoMove(self):
         """
@@ -259,10 +257,6 @@ class GameState:
         else:
             self.checkmate = False
             self.stalemate = False
-            
-        if self.insufficientMaterial(self.board):
-            self.checkmate = False
-            self.stalemate = True
 
         self.current_castling_rights = temp_castle_rights
         return moves

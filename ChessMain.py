@@ -31,7 +31,7 @@ def main():
     sqSelected = ()
     playerClicks = []
     game_over = False
-    playerOne = True
+    playerOne = False
     playerTwo = False
 
     while running:
@@ -56,6 +56,7 @@ def main():
                         for i in range(len(validMoves)):
                             if move == validMoves[i]:
                                 gs.makeMove(validMoves[i])
+                                print(validMoves[i].getChessNotation())
                                 moveMade = True
                                 animate = True
                                 sqSelected = ()  # reset user clicks
@@ -81,7 +82,10 @@ def main():
 
         if not game_over and not humanTurn:
             AIMove = SmartMoveFinder.getBestMove(gs, gs.getValidMoves())
+            if AIMove is None:
+                AIMove = SmartMoveFinder.findRandomMove(validMoves)
             gs.makeMove(AIMove)
+            print(AIMove.getChessNotation())
             moveMade = True
             animate = True
         
@@ -94,16 +98,23 @@ def main():
                 
         drawGameState(screen, gs, validMoves, sqSelected)    
         
+        if len(gs.move_log)//2 == 75:
+            print('Move Limit')
+            gs.stalemate = True
+        elif gs.insufficientMaterial(gs.board):
+            print('Insufficient Material')
+            gs.stalemate = True
+            
         if gs.checkmate:
             game_over = True
             if gs.white_to_move:
                 drawEndGameText(screen, "Black wins by checkmate")
             else:
                 drawEndGameText(screen, "White wins by checkmate")
-
         elif gs.stalemate:
             game_over = True
             drawEndGameText(screen, "Stalemate")
+            
             
         clock.tick(MAX_FPS)
         p.display.flip()
