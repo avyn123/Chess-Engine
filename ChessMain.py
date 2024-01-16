@@ -31,7 +31,7 @@ def main():
     sqSelected = ()
     playerClicks = []
     game_over = False
-    playerOne = False
+    playerOne = True
     playerTwo = False
 
     while running:
@@ -81,7 +81,7 @@ def main():
                     game_over = False
 
         if not game_over and not humanTurn:
-            AIMove = SmartMoveFinder.getBestMove(gs, gs.getValidMoves())
+            AIMove = SmartMoveFinder.findBestMove(gs, gs.getValidMoves())
             if AIMove is None:
                 AIMove = SmartMoveFinder.findRandomMove(validMoves)
             gs.makeMove(AIMove)
